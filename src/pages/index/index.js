@@ -10,19 +10,38 @@ function Gladiator(health, rage, damage_low, damage_high) {
 }
 const player1 = new Gladiator(100, 0, 7, 19);
 const player2 = new Gladiator(100, 0, 5, 23);
-//check function
-function attack(player, other) {
-    var normal = Math.floor(Math.random() * damage_high) + damage_low;
-    if (Math.floor(Math.random() * 100) + 1 >= player.rage) {
-        (player.health -= normal * 2), (player.rage = 0);
+var turn = 0;
+
+function attack(player, defender) {
+    var normal =
+        Math.floor(Math.random() * player.damage_high) + player.damage_low;
+    if (Math.floor(Math.random() * 100) + 1 <= player.rage) {
+        defender.health -= normal * 2;
+        player.rage = 0;
     } else {
-        (other.health = other.health - normal), (other.rage += 15);
+        defender.health -= normal;
+        player.rage += 15;
+    }
+    if (defender.health <= 0) {
+        defender.health = 0;
+    }
+}
+
+// kick function
+function kick(player, defender) {
+    var kik = Math.floor(Math.random() * 40) + 20;
+    if (player.rage >= 25) {
+        (defender.health -= kik), (player.rage = 0);
+    }
+    if (defender.health <= 0) {
+        defender.health = 0;
     }
 }
 
 function heal(player) {
     if (player.rage >= 10) {
         player.health += 5;
+        player.rage -= 10;
         if (player.health > 100) {
             player.health = 100;
         }
@@ -39,15 +58,54 @@ function is_dead(player) {
     }
 }
 
-// const turn = 1;
-// const attacker = player1;
-// const defender = player2;
+function attachHandlers() {
+    $('#attack').click(function() {
+        attack(turnOne(), turnTwo());
+        turns();
+        draw();
+    });
+    $('#kick').click(function() {
+        kick(turnOne(), turnTwo());
+        turns();
+        draw();
+    });
+    $('#heal').click(function() {
+        heal(turnOne());
+        turns();
+        draw();
+    });
+}
 
 function controlButton() {
     return [
-        "<div><button id='attack'>attack</button>",
+        "<div><button id='attack'>attack</button>\n",
+        "<button id='kick'>kick</button>\n",
         "<button id='heal'>heal</button></div>"
     ].join('');
+}
+
+function turns() {
+    if (turn == 0) {
+        turn = 1;
+    } else {
+        turn = 0;
+    }
+}
+
+function turnOne() {
+    if (turn == 0) {
+        return player1;
+    } else {
+        return player2;
+    }
+}
+
+function turnTwo() {
+    if (turn == 1) {
+        return player2;
+    } else {
+        return player1;
+    }
 }
 
 function displayGld(player) {
@@ -65,14 +123,6 @@ function draw() {
     attachHandlers();
 }
 
-function attachHandlers() {
-    $('#attack').click(function() {
-        draw();
-    });
-    $('#heal').click(function() {
-        draw();
-    });
-}
 function main() {
     draw();
 }
