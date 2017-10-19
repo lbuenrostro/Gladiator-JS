@@ -2,28 +2,34 @@ const $ = require('jquery');
 const other = require('../../lib/other');
 const appRoot = $('#app');
 
-function Gladiator(health, rage, damage_low, damage_high) {
+function Gladiator(health, rage, damageLow, damageHigh) {
     this.health = health;
     this.rage = rage;
-    this.damage_low = damage_low;
-    this.damage_high = damage_high;
+    this.damageLow = damageLow;
+    this.damageHigh = damageHigh;
 }
 const player1 = new Gladiator(100, 0, 7, 19);
 const player2 = new Gladiator(100, 0, 5, 23);
-var turn = 0;
+STATE = {
+    turn: 0,
+    update: ''
+};
 
 function attack(player, defender) {
     var normal =
-        Math.floor(Math.random() * player.damage_high) + player.damage_low;
+        Math.floor(Math.random() * player.damageHigh) + player.damageLow;
     if (Math.floor(Math.random() * 100) + 1 <= player.rage) {
         defender.health -= normal * 2;
         player.rage = 0;
+        STATE.update = 'HIT OF ' + normal * 2 + ' POINTS!';
     } else {
         defender.health -= normal;
         player.rage += 15;
+        STATE.update = 'HIT OF ' + normal + ' POINTS!';
     }
     if (defender.health <= 0) {
         defender.health = 0;
+        STATE.update = 'NO HIT!';
     }
 }
 
@@ -31,11 +37,17 @@ function attack(player, defender) {
 function kick(player, defender) {
     var kik = Math.floor(Math.random() * 40) + 20;
     if (player.rage >= 25) {
-        (defender.health -= kik), (player.rage = 0);
+        defender.health -= kik;
+        player.rage = 0;
     }
     if (defender.health <= 0) {
         defender.health = 0;
     }
+}
+
+// Increase Rage function
+function increaseRage(player) {
+    player.rage += 15;
 }
 
 function heal(player) {
@@ -58,42 +70,25 @@ function is_dead(player) {
     }
 }
 
-function attachHandlers() {
-    $('#attack').click(function() {
-        attack(turnOne(), turnTwo());
-        turns();
-        draw();
-    });
-    $('#kick').click(function() {
-        kick(turnOne(), turnTwo());
-        turns();
-        draw();
-    });
-    $('#heal').click(function() {
-        heal(turnOne());
-        turns();
-        draw();
-    });
-}
-
-function controlButton() {
-    return [
-        "<div><button id='attack'>attack</button>\n",
-        "<button id='kick'>kick</button>\n",
-        "<button id='heal'>heal</button></div>"
-    ].join('');
+function startOver(playing, defending) {
+    STATE.update = '';
+    STATE.turn = 0;
+    playing.health = 100;
+    defending.health = 100;
+    playing.rage = 0;
+    defending.rage = 0;
 }
 
 function turns() {
-    if (turn == 0) {
-        turn = 1;
+    if (STATE.turn == 0) {
+        STATE.turn = 1;
     } else {
-        turn = 0;
+        STATE.turn = 0;
     }
 }
 
 function turnOne() {
-    if (turn == 0) {
+    if (STATE.turn == 0) {
         return player1;
     } else {
         return player2;
@@ -101,11 +96,53 @@ function turnOne() {
 }
 
 function turnTwo() {
-    if (turn == 1) {
-        return player2;
-    } else {
+    if (STATE.turn == 1) {
         return player1;
+    } else {
+        return player2;
     }
+}
+
+function attachHandlers() {
+    $('#attack').click(function() {
+        attack(turnOne(), turnTwo());
+        turns();
+
+        draw();
+    });
+    $('#kick').click(function() {
+        kick(turnOne(), turnTwo());
+        turns();
+        draw();
+    });
+
+    $('#increaseRage').click(function() {
+        increaseRage(turnOne());
+        turns();
+        draw();
+    });
+
+    $('#heal').click(function() {
+        heal(turnOne());
+        turns();
+        draw();
+    });
+    $('#startOver').click(function() {
+        startOver(turnOne(), turnTwo());
+        turns();
+        draw();
+    });
+}
+
+function controlButton() {
+    return [
+        STATE.update,
+        "<div><button id='attack'>attack</button>\n",
+        "<button id='kick'>kick</button>\n",
+        "<button id='increaseRage'>Increase Rage</button>\n",
+        "<button id='heal'>heal</button>\n",
+        "<button id='startOver'>Start Over</button></div>"
+    ].join('');
 }
 
 function displayGld(player) {
