@@ -1,0 +1,39 @@
+const $ = require('jquery');
+const appRoot = $('#app');
+
+const STATE = {
+    count: 0
+};
+
+function view() {
+    return [
+        "<div><button id='down'>-</button>",
+        STATE.count,
+        '<button id="up">+</button></div>'
+    ].join('');
+}
+
+function attachHandlers() {
+    $('#up').click(function() {
+        STATE.count += 1;
+        appRoot.html(view());
+        draw();
+    });
+
+    $('#down').click(function() {
+        STATE.count -= 1;
+        appRoot.html(view());
+        draw();
+    });
+}
+
+function draw() {
+    appRoot.html(view());
+    attachHandlers();
+}
+
+function main() {
+    draw();
+}
+
+$(main);
