@@ -1,0 +1,61 @@
+body {
+    font-family: 'Sigmar One', cursive;
+    font-family: 'Shrikhand', cursive;
+    background-image: url('game.jpg');
+    background-size: cover;
+    padding: 25px;
+    height: 400px;
+}
+
+h1 {
+    color: rgba(115, 0, 209, 0.8);
+    font-size: 45px;
+    text-align: center;
+}
+
+h2,
+button {
+    background-color: rgba(115, 0, 209, 0.8);
+    color: rgb(0, 255, 55);
+}
+
+h2,
+button:hover {
+    -webkit-transform: rotateX(20deg) rotateY(12deg);
+    transform: 20deg 12deg;
+}
+
+h3 {
+    color: rgb(145, 255, 0);
+    font-size: 30px;
+}
+hr {
+    margin: 20px;
+}
+
+#app {
+    color: white;
+    font-size: 20px;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+    font-size: 20px;
+    background-image: url('gameOver.jpg');
+    background-size: cover;
+    padding: 50px;
+    height: 400px;
+    background-image: fixed;
+    -webkit-transform: rotateX(0deg) rotateY(0deg);
+    transform: 0deg 0deg;
+}
+
+.col-lg-6 {
+    text-align: center;
+}
+
+.damage {
+    color: rgb(145, 255, 0);
+    background-color: rgba(115, 0, 209, 0.7);
+}
