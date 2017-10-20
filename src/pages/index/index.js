@@ -2,18 +2,105 @@ const $ = require('jquery');
 const other = require('../../lib/other');
 const appRoot = $('#app');
 
-function Gladiator(health, rage, damageLow, damageHigh) {
+function Gladiator(name, health, rage, damageLow, damageHigh) {
+    this.name = name;
     this.health = health;
     this.rage = rage;
     this.damageLow = damageLow;
     this.damageHigh = damageHigh;
 }
-const player1 = new Gladiator(100, 0, 7, 19);
-const player2 = new Gladiator(100, 0, 5, 23);
+const player = new Gladiator('Gladiator ONE 💀', 100, 0, 7, 19);
+const defender = new Gladiator('Gladiator TWO 💀', 100, 0, 5, 23);
+
 STATE = {
     turn: 0,
     update: ''
 };
+
+function turns() {
+    if (STATE.turn == 0) {
+        STATE.turn = 1;
+    } else {
+        STATE.turn = 0;
+    }
+}
+
+function turnOne() {
+    if (STATE.turn == 0) {
+        return player;
+    } else {
+        return defender;
+    }
+}
+
+function turnTwo() {
+    if (STATE.turn == 1) {
+        return player;
+    } else {
+        return defender;
+    }
+}
+
+function displayGld(player) {
+    return [
+        '<div class="col-lg-6"',
+        '<div><h3>',
+        player.name,
+        '</h3>',
+        '<h3> Health: ',
+        player.health,
+        '</h3>',
+        '<h3>Gladiator Rage: ',
+        player.rage,
+        '</h3>',
+        '<hr/>',
+        '</div>'
+    ].join('');
+}
+
+function controlButton() {
+    return [
+        "<div class='damage'>",
+        STATE.update,
+        '</div>',
+        "<div><button id='attack'>attack</button>\n",
+        "<button id='kick'>kick</button>\n",
+        "<button id='increaseRage'>Increase Rage</button>\n",
+        "<button id='heal'>heal</button>\n",
+        "<button id='startOver'>Start Over</button></div>"
+    ].join('');
+}
+
+function attachHandlers() {
+    $('#attack').click(function() {
+        attack(turnOne(), turnTwo());
+        turns();
+
+        draw();
+    });
+    $('#kick').click(function() {
+        kick(turnOne(), turnTwo());
+        turns();
+        draw();
+    });
+
+    $('#increaseRage').click(function() {
+        increaseRage(turnOne());
+        turns();
+        draw();
+    });
+
+    $('#heal').click(function() {
+        heal(turnOne());
+        turns();
+        draw();
+    });
+    $('#startOver').click(function() {
+        startOver(turnOne(), turnTwo());
+        turns();
+        draw();
+    });
+}
 
 function attack(player, defender) {
     var normal =
@@ -62,11 +149,25 @@ function heal(player) {
     }
 }
 
-function is_dead(player) {
+function playerIsDead(player) {
+    appRoot.html(
+        '<h2> ' +
+            player.name +
+            ' Is DEAD! </br></h2><button onclick="document.location.reload()"> RESTART </button>'
+    );
+}
+function defenderIsDead(defender) {
+    appRoot.html(
+        '<h2> ' +
+            defender.name +
+            ' Is DEAD! </br></h2><button onclick="document.location.reload()"> RESTART </button>'
+    );
+}
+function isForrealDead(player, defender) {
     if (player.health <= 0) {
-        return true;
-    } else {
-        return false;
+        playerIsDead(player);
+    } else if (defender.health <= 0) {
+        defenderIsDead(defender);
     }
 }
 
@@ -79,105 +180,13 @@ function startOver(playing, defending) {
     defending.rage = 0;
 }
 
-function turns() {
-    if (STATE.turn == 0) {
-        STATE.turn = 1;
-    } else {
-        STATE.turn = 0;
-    }
-}
-
-function turnOne() {
-    if (STATE.turn == 0) {
-        return player1;
-    } else {
-        return player2;
-    }
-}
-
-function turnTwo() {
-    if (STATE.turn == 1) {
-        return player1;
-    } else {
-        return player2;
-    }
-}
-
-function attachHandlers() {
-    $('#attack').click(function() {
-        attack(turnOne(), turnTwo());
-        turns();
-
-        draw();
-    });
-    $('#kick').click(function() {
-        kick(turnOne(), turnTwo());
-        turns();
-        draw();
-    });
-
-    $('#increaseRage').click(function() {
-        increaseRage(turnOne());
-        turns();
-        draw();
-    });
-
-    $('#heal').click(function() {
-        heal(turnOne());
-        turns();
-        draw();
-    });
-    $('#startOver').click(function() {
-        startOver(turnOne(), turnTwo());
-        turns();
-        draw();
-    });
-}
-
-function controlButton() {
-    return [
-        STATE.update,
-        "<div><button id='attack'>attack</button>\n",
-        "<button id='kick'>kick</button>\n",
-        "<button id='increaseRage'>Increase Rage</button>\n",
-        "<button id='heal'>heal</button>\n",
-        "<button id='startOver'>Start Over</button></div>"
-    ].join('');
-}
-
-function displayGld(player) {
-    return [
-        '<div><h3>Gladiator Health: </h3>',
-        player.health,
-        '<h3>Gladiator Rage: </h3>',
-        player.rage,
-        '<hr/>'
-    ].join('');
-}
-
 function draw() {
-    appRoot.html(displayGld(player1) + displayGld(player2) + controlButton());
+    appRoot.html(displayGld(player) + displayGld(defender) + controlButton());
     attachHandlers();
+    isForrealDead(player, defender);
 }
-
 function main() {
     draw();
 }
 
 $(main);
-// function hello() {
-//     $('body').append('<h1> Good Bye!</h1>');
-//     other.foo();
-// }
-
-// function newFunc() {
-//     return 2;
-// }
-// function add(a, b) {
-//     return a + b;
-// }
-
-// $(hello);
-
-// exports.hello = hello;
-// exports.add = add;
